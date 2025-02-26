@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 Route::get('/about', function () {
-    $name = 'Mansour';
+    $name = 'Hamed';
     $departments = [
         '01' => 'Tichnical',
         '02' => 'Financial',
