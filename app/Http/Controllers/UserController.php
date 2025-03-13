@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = DB::table('users')->get();
+        $users = User::all();
         return view('users', compact('users'));
     }
 
@@ -18,26 +19,19 @@ class UserController extends Controller
     {
         $name = $_POST['name'];
         $email = $_POST['email'];
-        $password = Hash::make($_POST['password']); // Hash the password
-
-        DB::table('users')->insert([
-            'name' => $name,
-            'email' => $email,
-            'password' => $password,
-        ]);
-        return redirect('/users');
-    }
-
-    public function destroy($id)
-    {
-        DB::table('users')->where('id', $id)->delete();
+        $password = Hash::make($_POST['password']);
+        $user = new User();
+        $user->name = $name;
+        $user->email = $email;
+        $user->password = $password;
+        $user->save();
         return redirect('/users');
     }
 
     public function edit($id)
     {
-        $user = DB::table('users')->where('id', $id)->first();
-        $users = DB::table('users')->get();
+        $user = User::find($id);
+        $users = User::all();
         return view('users', compact('user', 'users'));
     }
 
@@ -46,18 +40,22 @@ class UserController extends Controller
         $id = $_POST['id'];
         $name = $_POST['name'];
         $email = $_POST['email'];
-        $password = $_POST['password'] ? Hash::make($_POST['password']) : null; // Update password only if provided
+        $password = $_POST['password'] ? Hash::make($_POST['password']) : null;
 
-        $updateData = [
-            'name' => $name,
-            'email' => $email,
-        ];
-
+        $user = User::find($id);
+        $user->name = $name;
+        $user->email = $email;
         if ($password) {
-            $updateData['password'] = $password;
+            $user->password = $password;
         }
+        $user->save();
 
-        DB::table('users')->where('id', $id)->update($updateData);
+        return redirect('/users');
+    }
+
+    public function destroy($id)
+    {
+        User::destroy($id);
         return redirect('/users');
     }
 }
